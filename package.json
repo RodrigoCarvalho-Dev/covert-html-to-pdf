@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "dev" : "node index.js",
+    "build" : "node index.js"
+  },
   "name": "convert-html-to-css",
   "version": "1.0.0",
   "main": "index.js",
