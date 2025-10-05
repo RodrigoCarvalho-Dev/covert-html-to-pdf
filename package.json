@@ -1,0 +1,10 @@
+{
+  "name": "convert-html-to-css",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "puppeteer": "^24.23.0"
+  }
+}
