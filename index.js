@@ -1,42 +1,10 @@
-import puppeteer from "puppeteer";
 import http from "http";
 import { configDotenv } from "dotenv";
+import pdfkit from "pdfkit";
 
 configDotenv();
 
 const API_KEY = process.env.API_KEY;
-
-async function convertHtmlToPdf(htmlFileString, pdfFilePath) {
-  // Lê o HTML
-
-  // Abre o navegador
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-
-  // Carrega o HTML
-  await page.setContent(htmlFileString, { waitUntil: 'networkidle0' });
-
-  // Gera o PDF
-  const pdfFile = await page.pdf({
-    path: pdfFilePath,
-    format: 'A4',
-    printBackground: true,
-  });
-
-  await browser.close();
-  console.log('PDF gerado com sucesso!');
-
-  return pdfFile;
-
-}
-
-// Exemplo de uso
-// convertHtmlToPdf('./documento.html', 'document.pdf');
-
-
-// definir qual documento irá entrar e qual vai ser o nome do documento de saída
-
-// enviar arquivo html por http
 
 const server = http.createServer( async ( req, res ) => {
 
@@ -77,13 +45,39 @@ const server = http.createServer( async ( req, res ) => {
                 return;
               }
 
-                const pdf = await convertHtmlToPdf( html, filename );
+              const doc = new pdfkit({ size : "A4", margin : 50 });
 
-                res.writeHead(200, {
-                    "Content-Type": "application/pdf",
-                    "Content-Disposition": "attachment; filename=" + filename
-                  });
-                  res.end(pdf);
+              let chunks = [];
+
+              doc.on("data", chunck => chunks.push(chunck));
+              doc.on("end", () => {
+                const pdfBuffer = Buffer.concat(chunks);
+                
+                res.writeHead( 200, {
+                  "content-type" : "application/pdf",
+                  "Content-Disposition": `attachment; filename="${filename}.pdf"`,
+                });
+
+                res.end(pdfBuffer);
+            
+              });
+
+              // const cleanText = html
+              // .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, "") // remove estilos
+              // .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "") // remove scripts
+              // .replace(/<[^>]+>/g, "") // remove tags HTML
+              // .replace(/\s+/g, " ") // normaliza espaços
+              // .trim();
+          
+              doc.fontSize(14).text(html, {
+                  align: "left",
+                  lineGap: 6,
+              });
+
+              doc.end();
+
+              console.log('PDF gerado com sucesso!');
+
               });
 
 
@@ -103,7 +97,7 @@ const server = http.createServer( async ( req, res ) => {
 
 });
 
-server.listen( 3000, () => {
+server.listen( 3001, () => {
 
     console.log("server is running in http://localhost:3000");
 

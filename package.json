@@ -9,6 +9,6 @@
   "license": "MIT",
   "dependencies": {
     "dotenv": "^17.2.3",
-    "puppeteer": "^24.23.0"
+    "pdfkit": "^0.17.2"
   }
 }
